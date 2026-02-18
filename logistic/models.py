@@ -10,6 +10,13 @@ from django.db import models
 
 #    name = models.CharField(max_length=255)
 
+
+class VideoStatus(models.TextChoices):
+    NOT_PROCESSED = "not_processed", "Не обработан"
+    PROCESSING = "processing", "В обработке"
+    PROCESSED = "processed", "Обработан"
+
+
 class Video(models.Model):
     title = models.CharField(
         max_length=255,
@@ -24,6 +31,12 @@ class Video(models.Model):
         blank=True,
         null=True,
         help_text="URL, для загрузки видео",
+    )
+    status = models.CharField(
+        max_length=32,
+        choices=VideoStatus.choices,
+        default=VideoStatus.NOT_PROCESSED,
+        help_text="Статус обработки видео",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

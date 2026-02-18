@@ -12,8 +12,9 @@ class VideoSerializer(serializers.ModelSerializer):
             "title",
             "file",
             "source_url",
+            "status",
             "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "created_at", "status"]
 
 
