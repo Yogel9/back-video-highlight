@@ -136,7 +136,7 @@ class Task(models.Model):
         if is_new:
             from .tasks import run_ml_task
 
-            run_ml_task.delay(self.pk)
+            run_ml_task.apply_async(self.pk)
 
     def start(self, extra_payload=None) -> None:
         from django.conf import settings
