@@ -15,6 +15,13 @@ class HeadlineViewSet(ListAPIView):
     serializer_class = HeadlineSerializer
     permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        video_id = self.request.query_params.get("video_id")
+        if video_id is not None:
+            queryset = queryset.filter(video_id=video_id)
+        return queryset
+
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer

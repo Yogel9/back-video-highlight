@@ -36,7 +36,8 @@ class Video(models.Model):
         help_text="Загружаемый файл",
         blank=True,
     )
-    source_url = models.URLField(
+    source_url = models.CharField(
+        max_length=1024,
         blank=True,
         null=True,
         help_text="URL, для загрузки видео",

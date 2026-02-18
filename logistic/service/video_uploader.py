@@ -1,4 +1,5 @@
 from pytubefix import YouTube
+from pytubefix.exceptions import MaxRetriesExceeded
 
 class VideoUploader:
 
@@ -7,6 +8,9 @@ class VideoUploader:
         self.video_file = None
 
     def upload(self):
-        yt = YouTube(self.url)
-        self.video_file = yt.streams.get_highest_resolution().download()
+        try:
+            yt = YouTube(self.url)
+            self.video_file = yt.streams.get_highest_resolution().download()
+        except MaxRetriesExceeded:
+            self.video_file = None
         return self.video_file
