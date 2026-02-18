@@ -1,8 +1,11 @@
-"""
-Пустая регистрация админки для приложения `logistic`.
+from django.contrib import admin
 
-Здесь вы сможете регистрировать свои модели в Django admin.
-"""
+from .models import Video
 
-from django.contrib import admin  # noqa: F401
+
+@admin.register(Video)
+class VideoAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "created_at")
+    search_fields = ("title", "source_url")
+    list_filter = ("created_at",)
 
