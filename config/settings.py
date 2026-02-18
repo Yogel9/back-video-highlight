@@ -147,18 +147,26 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-# MinIO / S3 Storage Configuration
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
 AWS_ACCESS_KEY_ID = 'minioadmin'
 AWS_SECRET_ACCESS_KEY = 'minioadmin'
-AWS_STORAGE_BUCKET_NAME = 'files'
+AWS_STORAGE_BUCKET_NAME = 'video'  # имя бакета
 AWS_S3_ENDPOINT_URL = 'http://minio:9000'
+AWS_S3_CUSTOM_DOMAIN = 'minio:9000'
 AWS_S3_USE_SSL = False
 AWS_S3_USE_SIGV4 = False
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = False
+AWS_S3_ADDRESSING_STYLE = 'path'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://redis:6379/0'

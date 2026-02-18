@@ -2,15 +2,15 @@ from django.db import models
 
 
 # class Domain(models.Model):
+#class Domain(models.TextChoices):
+#    TRAFFIC = "traffic", "ДТП"
+#    FACTORY = "factory", "Производство"
+#    FIGHT = "fight", "Драки"
+
+
 #    name = models.CharField(max_length=255)
 
 class Video(models.Model):
-
-    class Domain(models.TextChoices):
-        TRAFFIC = "traffic", "ДТП"
-        FACTORY = "factory", "Производство"
-        FIGHT = "fight", "Драки"
-
     title = models.CharField(
         max_length=255,
         blank=True,
@@ -23,12 +23,7 @@ class Video(models.Model):
     source_url = models.URLField(
         blank=True,
         null=True,
-        help_text="URL, по которому можно скачать видео (альтернатива прямой загрузке файла).",
-    )
-    domain = models.CharField(
-        max_length=32,
-        choices=Domain.choices,
-        help_text="Домен",
+        help_text="URL, для загрузки видео",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
