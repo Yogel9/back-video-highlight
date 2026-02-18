@@ -35,10 +35,5 @@ class Video(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-    def save(self, *args, **kwargs):
-        if self.file and not self.original_filename:
-            self.original_filename = getattr(self.file, "name", "") or ""
-        super().save(*args, **kwargs)
-
     def __str__(self) -> str:
-        return self.title or self.original_filename or f"Video #{self.pk}"
+        return self.title or f"Video #{self.pk}"
