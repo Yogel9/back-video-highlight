@@ -34,19 +34,30 @@ services:
       retries: 3
       start_period: 10s
 
-#  redis:
-#    image: redis:7-alpine
-#    container_name: redis
-#    ports:
-#      - "6379:6379"
-#    volumes:
-#      - redis-data:/data
-#    healthcheck:
-#      test: ["CMD", "redis-cli", "ping"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  celery-ml:
+    build: .
+    command: celery -A config worker -l info -Q ml -c 1
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+    depends_on:
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+
 #  celery:
 #    build: .
 #    command: celery -A config worker -l info
