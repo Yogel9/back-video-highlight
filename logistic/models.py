@@ -135,8 +135,7 @@ class Task(models.Model):
         super().save(*args, **kwargs)
         if is_new:
             from .tasks import run_ml_task
-
-            run_ml_task.apply_async(self.pk)
+            run_ml_task.apply_async(args=[self.pk])
 
     def start(self, extra_payload=None) -> None:
         from django.conf import settings
