@@ -10,7 +10,6 @@ class VideoSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "title",
-            "service",
             "file",
             "source_url",
             "created_at",
