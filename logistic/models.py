@@ -2,28 +2,10 @@ from django.db import models
 
 from .service.video_uploader import VideoUploader
 
-# class Domain(models.Model):
-#class Domain(models.TextChoices):
-#    TRAFFIC = "traffic", "ДТП"
-#    FACTORY = "factory", "Производство"
-#    FIGHT = "fight", "Драки"
-
-
-#    name = models.CharField(max_length=255)
-
-
 class VideoStatus(models.TextChoices):
     NOT_PROCESSED = "not_processed", "Не обработан"
     PROCESSING = "processing", "В обработке"
     PROCESSED = "processed", "Обработан"
-
-
-class EventType(models.TextChoices):
-    DTP = "DTP", "ДТП"
-    INDUSTRIAL = "INDUSTRIAL", "Промышленное"
-    FIGHT = "FIGHT", "Драка"
-    OTHER = "OTHER", "Другое/Нет события"
-
 
 class Video(models.Model):
     title = models.CharField(
@@ -76,7 +58,6 @@ class Headline(models.Model):
     )
     event_type = models.CharField(
         max_length=32,
-        choices=EventType.choices,
         help_text='Категория события',
     )
     start_time = models.PositiveIntegerField(
@@ -106,3 +87,98 @@ class Headline(models.Model):
 
     def __str__(self) -> str:
         return f"{self.video} [{self.start_time}-{self.end_time}]"
+
+
+class TaskStatus(models.TextChoices):
+    PENDING = "pending", "Ожидает запуска"
+    RUNNING = "running", "Выполняется"
+    SUCCESS = "success", "Успешно завершено"
+    FAILED = "failed", "Завершено с ошибкой"
+
+
+class Task(models.Model):
+    video = models.ForeignKey(
+        Video,
+        on_delete=models.CASCADE,
+        related_name="tasks",
+        help_text="Видео",
+    )
+    status = models.CharField(
+        max_length=32,
+        choices=TaskStatus.choices,
+        default=TaskStatus.PENDING,
+        help_text="Статус выполнения задания",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+    result = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Ответ от ML-сервиса",
+    )
+    error_message = models.TextField(
+        blank=True,
+        help_text="Текст ошибки",
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Задание"
+        verbose_name_plural = "Задания"
+
+    def __str__(self) -> str:
+        return f"Задание #{self.pk} для {self.video}"
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            from .tasks import run_ml_task
+
+            run_ml_task.delay(self.pk)
+
+    def start(self, extra_payload=None) -> None:
+        from django.conf import settings
+        from django.utils import timezone
+
+        from .service.ml_adapter import MLAdapter
+
+        if self.status != TaskStatus.PENDING:
+            return
+
+        self.status = TaskStatus.RUNNING
+        self.started_at = timezone.now()
+        self.save(update_fields=["status", "started_at"])
+
+        api_url = getattr(settings, "ML_API_URL", None)
+        if not api_url:
+            self.status = TaskStatus.FAILED
+            self.error_message = "ML_API_URL не настроен в settings"
+            self.finished_at = timezone.now()
+            self.save(update_fields=["status", "error_message", "finished_at"])
+            return
+
+        file_url = self.video.file.url if self.video.file else ""
+        adapter = MLAdapter(api_url=api_url)
+
+        try:
+            response = adapter.send_request(
+                minio_file_url=file_url,
+                extra_payload=extra_payload,
+            )
+            self.result = response
+            self.status = TaskStatus.SUCCESS
+        except Exception as exc:  # noqa: BLE001
+            self.error_message = str(exc)
+            self.status = TaskStatus.FAILED
+        finally:
+            self.finished_at = timezone.now()
+            self.save(
+                update_fields=[
+                    "status",
+                    "finished_at",
+                    "result",
+                    "error_message",
+                ]
+            )

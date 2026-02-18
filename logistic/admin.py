@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Video, Headline
+from .models import Headline, Task, Video
 
 
 @admin.register(Video)
@@ -23,3 +23,17 @@ class HeadlineAdmin(admin.ModelAdmin):
     )
     list_filter = ("event_type", "created_at")
     search_fields = ("description", "video__title")
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "video",
+        "status",
+        "created_at",
+        "started_at",
+        "finished_at",
+    )
+    list_filter = ("status", "created_at", "started_at", "finished_at")
+    search_fields = ("video__title",)
