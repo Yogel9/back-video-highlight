@@ -1,6 +1,10 @@
+import logging
+
 from django.db import models
 
 from .service.video_uploader import VideoUploader
+
+logger = logging.getLogger(__name__)
 
 class VideoStatus(models.TextChoices):
     NOT_PROCESSED = "not_processed", "Не обработан"
@@ -134,8 +138,17 @@ class ConfigTask(models.Model):
         is_new = self.pk is None
         super().save(*args, **kwargs)
         if is_new:
-            from .tasks import run_ml_task
-            run_ml_task.apply_async(args=[self.pk])
+            try:
+                from .tasks import run_ml_task
+                run_ml_task.apply_async(args=[self.pk])
+            except Exception as e:
+                logger.warning(
+                    "Не удалось поставить задачу ML в очередь (брокер недоступен?). "
+                    "Задание #%s сохранено, задачу можно запустить вручную. Ошибка: %s",
+                    self.pk,
+                    e,
+                    exc_info=True,
+                )
 
     def start(self, extra_payload=None) -> None:
         from django.conf import settings
