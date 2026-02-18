@@ -34,6 +34,7 @@ class Video(models.Model):
     file = models.FileField(
         upload_to="videos/",
         help_text="Загружаемый файл",
+        blank=True,
     )
     source_url = models.URLField(
         blank=True,
