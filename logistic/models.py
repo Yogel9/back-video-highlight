@@ -96,7 +96,7 @@ class TaskStatus(models.TextChoices):
     FAILED = "failed", "Завершено с ошибкой"
 
 
-class Task(models.Model):
+class ConfigTask(models.Model):
     video = models.ForeignKey(
         Video,
         on_delete=models.CASCADE,

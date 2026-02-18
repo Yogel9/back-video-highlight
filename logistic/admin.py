@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Headline, Task, Video
+from .models import Headline, ConfigTask, Video
 
 
 @admin.register(Video)
@@ -25,8 +25,8 @@ class HeadlineAdmin(admin.ModelAdmin):
     search_fields = ("description", "video__title")
 
 
-@admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
+@admin.register(ConfigTask)
+class ConfigTaskAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "video",
