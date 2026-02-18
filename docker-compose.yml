@@ -10,11 +10,8 @@ services:
     environment:
       - DEBUG=1
     command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py runserver 0.0.0.0:8000"
     depends_on:
-      redis:
-        condition: service_healthy
       minio:
         condition: service_healthy
   minio:
@@ -64,4 +61,3 @@ services:
 
 volumes:
   minio-data:
-  redis-data:
