@@ -7,4 +7,5 @@ class VideoUploader:
 
     def upload(self):
         yt = YouTube(self.url)
-        video_file = yt.streams.get_highest_resolution().download()
+        self.video_file = yt.streams.get_highest_resolution().download()
+        return self.file
