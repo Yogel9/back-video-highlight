@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from logistic.utils import get_public_media_url
-from main.models import Video, Headline
+from main.models import Video, Highlight
 
 
 class VideoSerializer(serializers.ModelSerializer):
@@ -25,9 +25,9 @@ class VideoSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "status", "duration"]
 
 
-class HeadlineSerializer(serializers.ModelSerializer):
+class HighlightSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Headline
+        model = Highlight
         fields = [
             "id",
             "video",
@@ -40,4 +40,28 @@ class HeadlineSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class HighlightBulkCreateItemSerializer(serializers.Serializer):
+    """Сериализатор для элемента входящего массива при массовом создании хайлайтов."""
+
+    task_id = serializers.CharField()
+    event_type = serializers.CharField(max_length=32)
+    time_start = serializers.IntegerField(min_value=0)
+    description = serializers.CharField(allow_blank=True, default="")
+    confidence = serializers.FloatField()
+    time_duration = serializers.IntegerField(min_value=0)
+
+    def to_internal_value(self, data):
+        # Поддержка строковых значений (парсим числа)
+        if isinstance(data.get("time_start"), str):
+            data = data.copy()
+            data["time_start"] = int(data["time_start"])
+        if isinstance(data.get("time_duration"), str):
+            data = data.copy()
+            data["time_duration"] = int(data["time_duration"])
+        if isinstance(data.get("confidence"), str):
+            data = data.copy()
+            data["confidence"] = float(data["confidence"])
+        return super().to_internal_value(data)
 

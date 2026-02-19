@@ -1,7 +1,8 @@
 import os
 
 from django.db import models
-
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 class VideoStatus(models.TextChoices):
     NOT_PROCESSED = "not_processed", "Не обработан"
@@ -53,13 +54,21 @@ class Video(models.Model):
             self.title = os.path.splitext(os.path.basename(self.file.name))[0]
         super().save(*args, **kwargs)
 
+@receiver(post_save, sender=Video)
+def create_task(sender, instance, created, **kwargs):
+    from logistic.models import ConfigTask
 
-class Headline(models.Model):
+    if created:
+        ConfigTask.objects.create(video=instance)
+
+
+
+class Highlight(models.Model):
     video = models.ForeignKey(
         Video,
         on_delete=models.CASCADE,
-        related_name="headlines",
-        help_text="Видео, к которому относится хедлайн",
+        related_name="highlights",
+        help_text="Видео, к которому относится хайлайт",
     )
     event_type = models.CharField(
         max_length=32,
@@ -87,8 +96,8 @@ class Headline(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-        verbose_name = "Хедлайн"
-        verbose_name_plural = "Хедлайны"
+        verbose_name = "Хайлайт"
+        verbose_name_plural = "Хайлайты"
 
     def __str__(self) -> str:
         return f"{self.video} [{self.start_time}-{self.end_time}]"

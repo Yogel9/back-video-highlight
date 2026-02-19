@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Video, Headline
+from .models import Video, Highlight
 
 
 @admin.register(Video)
@@ -10,8 +10,8 @@ class VideoAdmin(admin.ModelAdmin):
     list_filter = ("status", "created_at")
 
 
-@admin.register(Headline)
-class HeadlineAdmin(admin.ModelAdmin):
+@admin.register(Highlight)
+class HighlightAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "video",

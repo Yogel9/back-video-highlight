@@ -14,7 +14,8 @@ from .views import (
     health_check,
     VideoViewSet,
     VideoStatusView,
-    HeadlineViewSet,
+    HighlightViewSet,
+    HighlightBulkCreateView,
 )
 
 router = DefaultRouter()
@@ -39,9 +40,14 @@ urlpatterns = [
         name="video-status",
     ),
     path(
-        "api/headlines/",
-        HeadlineViewSet.as_view(),
-        name="headlines",
+        "api/highlights/",
+        HighlightViewSet.as_view(),
+        name="highlights",
+    ),
+    path(
+        "api/highlights/bulk/",
+        HighlightBulkCreateView.as_view(),
+        name="highlight-bulk-create",
     ),
     
     # Таски (logistic)

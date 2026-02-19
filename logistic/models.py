@@ -58,11 +58,8 @@ class ConfigTask(models.Model):
                 run_ml_task.apply_async(args=[self.pk])
             except Exception as e:
                 logger.warning(
-                    "Не удалось поставить задачу ML в очередь (брокер недоступен). "
-                    "Задание #%s сохранено, задачу можно запустить вручную. Ошибка: %s",
-                    self.pk,
-                    e,
-                    exc_info=True,
+                    f"Не удалось поставить задачу ML в очередь (брокер недоступен). ",
+                    f"Ошибка: {e}"
                 )
 
     def start(self, extra_payload=None) -> None:
@@ -90,10 +87,14 @@ class ConfigTask(models.Model):
         file_url = get_public_media_url(raw_url) or raw_url
         adapter = MLAdapter(api_url=api_url)
 
+        payload = {"task_id": self.pk, **(extra_payload or {})}
+        if base_url := getattr(settings, "API_BASE_URL", None):
+            payload["status_callback_url"] = f"{base_url.rstrip('/')}/api/logistic/tasks/{self.pk}/status/"
+
         try:
             response = adapter.send_request(
                 minio_file_url=file_url,
-                extra_payload=extra_payload,
+                extra_payload=payload,
             )
             self.result = response
             self.status = TaskStatus.SUCCESS

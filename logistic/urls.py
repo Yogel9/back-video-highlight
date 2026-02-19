@@ -1,5 +1,11 @@
 from django.urls import path
 
-# Таски: endpoints можно добавить здесь при необходимости
+from logistic.views import ConfigTaskStatusView
 
-urlpatterns = []
+urlpatterns = [
+    path(
+        "tasks/<int:pk>/status/",
+        ConfigTaskStatusView.as_view(),
+        name="config-task-status",
+    ),
+]

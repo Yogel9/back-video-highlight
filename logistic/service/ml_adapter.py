@@ -31,7 +31,7 @@ class MLAdapter:
         return {
             "file_url": minio_file_url,
             "extra_payload": extra_payload or {},
-            "headlines": [
+            "highlights": [
                 {
                     "event_type": "goal",
                     "start_time": 10,

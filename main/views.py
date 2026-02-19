@@ -9,8 +9,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 
-from main.models import Video, Headline
-from logistic.serializers import VideoSerializer, HeadlineSerializer
+from main.models import Video, Highlight
+from logistic.serializers import (
+    VideoSerializer,
+    HighlightSerializer,
+    HighlightBulkCreateItemSerializer,
+)
 from logistic.service.video_uploader import (
     VideoUploader,
     ResourceNotFoundError,
@@ -26,9 +30,9 @@ def health_check(request):
     return Response({"status": "ok", "message": "API работает корректно"})
 
 
-class HeadlineViewSet(ListAPIView):
-    queryset = Headline.objects.all()
-    serializer_class = HeadlineSerializer
+class HighlightViewSet(ListAPIView):
+    queryset = Highlight.objects.all()
+    serializer_class = HighlightSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
@@ -37,6 +41,60 @@ class HeadlineViewSet(ListAPIView):
         if video_id is not None:
             queryset = queryset.filter(video_id=video_id)
         return queryset
+
+
+class HighlightBulkCreateView(APIView):
+    """
+    POST-эндпоинт для массового создания хайлайтов.
+
+    Body: массив объектов:
+    [
+        {
+            "task_id": "123",
+            "event_type": "TYPE",
+            "time_start": 10,
+            "description": "DESC",
+            "confidence": 0.95,
+            "time_duration": 5
+        },
+        ...
+    ]
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        if not isinstance(data, list):
+            return Response(
+                {"error": "Ожидается массив объектов с полями task_id, event_type, time_start, description, confidence, time_duration"},
+                status=400,
+            )
+        serializer = HighlightBulkCreateItemSerializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        highlights = []
+        for item in serializer.validated_data:
+            try:
+                task_id_int = int(item["task_id"])
+            except (TypeError, ValueError):
+                return Response(
+                    {"error": f"task_id должен быть числом: {item['task_id']}"},
+                    status=400,
+                )
+            video = get_object_or_404(Video, tasks__pk=task_id_int)
+            highlight = Highlight.objects.create(
+                video=video,
+                event_type=item["event_type"],
+                start_time=item["time_start"],
+                end_time=item["time_start"] + item["time_duration"],
+                description=item.get("description", "") or "",
+                confidence=item["confidence"],
+            )
+            highlights.append(highlight)
+        return Response(
+            HighlightSerializer(highlights, many=True).data,
+            status=201,
+        )
 
 
 class VideoViewSet(viewsets.ModelViewSet):
