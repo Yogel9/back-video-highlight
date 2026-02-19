@@ -38,7 +38,7 @@ class HighlightViewSet(ListAPIView):
         queryset = super().get_queryset()
         video_id = self.request.query_params.get("video_id")
         if video_id is not None:
-            queryset = queryset.filter(video_id=video_id)
+            queryset = queryset.filter(video__id=video_id)
         return queryset
 
 
