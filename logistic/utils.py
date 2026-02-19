@@ -7,7 +7,7 @@ def get_public_media_url(url: str | None) -> str | None:
         return None
 
     base_url = getattr(settings, "MEDIA_PUBLIC_BASE_URL", None)
-    full_url = base_url + "/video"
+    full_url = base_url + ":9000/video"
     if not base_url:
         return url
     for pref in ["https://minio:9000", "minio:9000", "http://minio:9000"]:
