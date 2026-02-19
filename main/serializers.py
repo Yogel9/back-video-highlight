@@ -10,9 +10,6 @@ class VideoSerializer(serializers.ModelSerializer):
     highlights_count = serializers.SerializerMethodField()
 
     def get_highlights_count(self, instance):
-        count = getattr(instance, "highlights_count", None)
-        if count is not None:
-            return count
         return instance.highlights.count() if hasattr(instance, "highlights") else 0
 
     def to_representation(self, instance):

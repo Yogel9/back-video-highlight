@@ -26,9 +26,6 @@ from logistic.service.video_uploader import (
 
 @api_view(["GET"])
 def health_check(request):
-    """
-    Проверка работоспособности API.
-    """
     return Response({"status": "ok", "message": "API работает корректно"})
 
 
