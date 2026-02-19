@@ -98,7 +98,6 @@ class ConfigTask(models.Model):
                 video_filename=video_filename,
             )
             self.result = response
-            self.status = TaskStatus.SUCCESS
         except Exception as exc:  # noqa: BLE001
             self.error_message = str(exc)
             self.status = TaskStatus.FAILED

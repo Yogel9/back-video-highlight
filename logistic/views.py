@@ -7,10 +7,6 @@ from logistic.models import ConfigTask, TaskStatus
 
 
 class ConfigTaskStatusView(APIView):
-    """
-    Обновление статуса ConfigTask по id.
-    Позволяет ML-сервису отправить результат обработки.
-    """
 
     permission_classes = [permissions.AllowAny]
 
@@ -32,15 +28,10 @@ class ConfigTaskStatusView(APIView):
 
         if new_status in (TaskStatus.SUCCESS, TaskStatus.FAILED):
             task.finished_at = timezone.now()
+            video = task.video
+            video.status = "processed"
             update_fields.append("finished_at")
-
-            if new_status == TaskStatus.SUCCESS and "result" in request.data:
-                task.result = request.data.get("result")
-                update_fields.append("result")
-            if new_status == TaskStatus.FAILED and "error_message" in request.data:
-                task.error_message = request.data.get("error_message", "")
-                update_fields.append("error_message")
-
+            video.save(update_fields=['status'])
         task.save(update_fields=update_fields)
 
         return Response({"id": task.pk, "status": task.status})

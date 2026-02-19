@@ -56,7 +56,10 @@ class HighlightBulkCreateItemSerializer(serializers.Serializer):
         # Поддержка строковых значений (парсим числа)
         if isinstance(data.get("time_start"), str):
             data = data.copy()
-            data["time_start"] = int(data["time_start"])
+            try:
+                data["time_start"] = int(data["time_start"])
+            except ValueError:
+                data["time_start"] = int(float(data["time_start"]))
         if isinstance(data.get("time_duration"), str):
             data = data.copy()
             data["time_duration"] = int(data["time_duration"])
