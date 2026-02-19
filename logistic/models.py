@@ -1,4 +1,5 @@
 import logging
+import os
 
 from django.db import models
 
@@ -50,6 +51,8 @@ class Video(models.Model):
             uploaded_file = uploader.upload()
             if uploaded_file is not None:
                 self.file = uploaded_file
+        if self.file and not self.title:
+            self.title = os.path.splitext(os.path.basename(self.file.name))[0]
         super().save(*args, **kwargs)
 
 
@@ -143,7 +146,7 @@ class ConfigTask(models.Model):
                 run_ml_task.apply_async(args=[self.pk])
             except Exception as e:
                 logger.warning(
-                    "Не удалось поставить задачу ML в очередь (брокер недоступен?). "
+                    "Не удалось поставить задачу ML в очередь (брокер недоступен). "
                     "Задание #%s сохранено, задачу можно запустить вручную. Ошибка: %s",
                     self.pk,
                     e,
