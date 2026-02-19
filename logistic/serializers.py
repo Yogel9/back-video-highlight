@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Video, Headline
+from main.models import Video, Headline
 
 
 class VideoSerializer(serializers.ModelSerializer):

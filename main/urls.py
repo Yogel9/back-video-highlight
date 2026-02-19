@@ -8,7 +8,17 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
-from .views import health_check
+from rest_framework.routers import DefaultRouter
+
+from .views import (
+    health_check,
+    VideoViewSet,
+    VideoStatusView,
+    HeadlineViewSet,
+)
+
+router = DefaultRouter()
+router.register(r"video", VideoViewSet, basename="video")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -21,6 +31,19 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     
-    # Подключение других приложений
+    # API видео
+    path("api/", include(router.urls)),
+    path(
+        "api/video/<int:pk>/status/",
+        VideoStatusView.as_view(),
+        name="video-status",
+    ),
+    path(
+        "api/headlines/",
+        HeadlineViewSet.as_view(),
+        name="headlines",
+    ),
+    
+    # Таски (logistic)
     path("api/logistic/", include("logistic.urls")),
 ]
