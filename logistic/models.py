@@ -2,7 +2,6 @@ import logging
 
 from django.db import models
 
-from logistic.utils import get_public_media_url
 from main.models import Video
 
 logger = logging.getLogger(__name__)
@@ -76,6 +75,7 @@ class ConfigTask(models.Model):
         self.save(update_fields=["status", "started_at"])
 
         api_url = getattr(settings, "ML_API_URL", None)
+
         if not api_url:
             self.status = TaskStatus.FAILED
             self.error_message = "ML_API_URL не настроен в settings"
@@ -83,18 +83,19 @@ class ConfigTask(models.Model):
             self.save(update_fields=["status", "error_message", "finished_at"])
             return
 
-        raw_url = self.video.file.url if self.video.file else ""
-        file_url = get_public_media_url(raw_url) or raw_url
+        video_filename = f"/{self.video.file.name}" if self.video.file else ""
+        if not video_filename:
+            self.status = TaskStatus.FAILED
+            self.error_message = "У видео нет загруженного файла"
+            self.finished_at = timezone.now()
+            self.save(update_fields=["status", "error_message", "finished_at"])
+            return
+
         adapter = MLAdapter(api_url=api_url)
-
-        payload = {"task_id": self.pk, **(extra_payload or {})}
-        if base_url := getattr(settings, "API_BASE_URL", None):
-            payload["status_callback_url"] = f"{base_url.rstrip('/')}/api/logistic/tasks/{self.pk}/status/"
-
         try:
             response = adapter.send_request(
-                minio_file_url=file_url,
-                extra_payload=payload,
+                task_id=str(self.pk),
+                video_filename=video_filename,
             )
             self.result = response
             self.status = TaskStatus.SUCCESS

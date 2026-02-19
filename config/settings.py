@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-t^xux8_85)cj%qf@l41i95%1#tw1rsd&@w)!vib&e!+v3vw_*!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-ML_API_URL = "*"
+ML_API_URL = "http://45.80.129.41:30001/ml/parse_video"
 API_BASE_URL = "http://45.80.129.41:8001"
 
 # Application definition
