@@ -5,6 +5,7 @@ from django.db import models
 
 class VideoStatus(models.TextChoices):
     NOT_PROCESSED = "not_processed", "Не обработан"
+    DOWNLOADING = "downloading", "Идёт загрузка"
     PROCESSING = "processing", "В обработке"
     PROCESSED = "processed", "Обработан"
 
@@ -31,6 +32,11 @@ class Video(models.Model):
         choices=VideoStatus.choices,
         default=VideoStatus.NOT_PROCESSED,
         help_text="Статус обработки видео",
+    )
+    duration = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Длительность видео в секундах",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

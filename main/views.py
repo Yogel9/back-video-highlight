@@ -64,13 +64,9 @@ class VideoViewSet(viewsets.ModelViewSet):
                 file_obj = self._download_video_from_url(source_url)
                 serializer.save(file=file_obj)
             except ResourceNotFoundError as e:
-                raise serializers.ValidationError(
-                    {"source_url": str(e)}
-                ) from e
+                raise serializers.ValidationError({"source_url": str(e)}) from e
             except NotAVideoError as e:
-                raise serializers.ValidationError(
-                    {"source_url": str(e)}
-                ) from e
+                raise serializers.ValidationError({"source_url": str(e)}) from e
         else:
             serializer.save()
 
@@ -85,13 +81,9 @@ class VideoViewSet(viewsets.ModelViewSet):
                 file_obj = self._download_video_from_url(source_url)
                 serializer.save(file=file_obj)
             except ResourceNotFoundError as e:
-                raise serializers.ValidationError(
-                    {"source_url": str(e)}
-                ) from e
+                raise serializers.ValidationError({"source_url": str(e)}) from e
             except NotAVideoError as e:
-                raise serializers.ValidationError(
-                    {"source_url": str(e)}
-                ) from e
+                raise serializers.ValidationError({"source_url": str(e)}) from e
         else:
             serializer.save()
 
@@ -101,4 +93,7 @@ class VideoStatusView(APIView):
 
     def get(self, request, pk, *args, **kwargs):
         video = get_object_or_404(Video, pk=pk)
-        return Response({"id": video.pk, "status": video.status})
+        return Response({
+            "id": video.pk,
+            "status": video.status,
+        })
