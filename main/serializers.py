@@ -49,6 +49,7 @@ class HighlightSerializer(serializers.ModelSerializer):
             "description",
             "highlight",
             "created_at",
+            "is_custom",
         ]
         read_only_fields = ["id", "created_at"]
 
