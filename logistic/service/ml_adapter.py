@@ -12,11 +12,15 @@ class MLAdapter:
         self,
         task_id: str,
         video_filename: str,
+        prompt: str | None = None,
     ) -> Dict[str, Any]:
+
         payload: Dict[str, Any] = {
             "task_id": task_id,
             "video_filename": video_filename,
         }
+        if prompt and prompt.strip():
+            payload["prompt"] = prompt.strip()
         response = requests.post(
             self.api_url,
             json=payload,

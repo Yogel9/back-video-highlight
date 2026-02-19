@@ -4,12 +4,13 @@ from django.db.models import Count
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, serializers
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action, api_view
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 
+from logistic.models import ConfigTask
 from main.models import Video, Highlight
 from main.serializers import (
     VideoSerializer,
@@ -60,9 +61,11 @@ class HighlightBulkCreateView(APIView):
         highlights = []
         for item in serializer.validated_data:
             task_id_int = int(item["task_id"])
-            video = get_object_or_404(Video, tasks__pk=task_id_int)
+            task = get_object_or_404(ConfigTask, pk=task_id_int)
+            video = task.video
             highlight = Highlight.objects.create(
                 video=video,
+                is_custom=bool(task.promt),
                 event_type=item["event_type"],
                 start_time=item["time_start"],
                 end_time=item["time_start"] + item["time_duration"],
@@ -123,6 +126,36 @@ class VideoViewSet(viewsets.ModelViewSet):
                 raise serializers.ValidationError({"source_url": str(e)}) from e
         else:
             serializer.save()
+
+    @action(detail=True, methods=["get", "post"], url_path="promt")
+    def custom_promt(self, request, pk=None):
+        video = self.get_object()
+
+        if request.method == "GET":
+            from logistic.models import ConfigTask
+
+            task_id = request.query_params.get("task_id")
+            if not task_id:
+                return Response(
+                    {"error": "Параметр task_id обязателен"},
+                    status=400,
+                )
+            task = get_object_or_404(ConfigTask, pk=task_id, video=video)
+            return Response({
+                "task_id": task.pk,
+                "status": task.status,
+                "promt": task.promt
+            })
+
+        # POST
+        promt = request.data.get("promt")
+        if not promt:
+            return Response(
+                {"error": "Поле promt обязательно"},
+                status=400,
+            )
+        task_id = video.create_task(promt)
+        return Response({"status": "ok", "task_id": task_id})
 
 
 class VideoStatusView(APIView):

@@ -53,13 +53,17 @@ class Video(models.Model):
         if self.file and not self.title:
             self.title = os.path.splitext(os.path.basename(self.file.name))[0]
         super().save(*args, **kwargs)
+    
+    def create_task(self, promt=None):
+        from logistic.models import ConfigTask
+        return ConfigTask.objects.create(video=self, promt=promt).id
+
 
 @receiver(post_save, sender=Video)
-def create_task(sender, instance, created, **kwargs):
-    from logistic.models import ConfigTask
-
+def first_standart_task(sender, instance, created, **kwargs):
     if created:
-        ConfigTask.objects.create(video=instance)
+        instance.create_task()
+
 
 
 
@@ -69,6 +73,10 @@ class Highlight(models.Model):
         on_delete=models.CASCADE,
         related_name="highlights",
         help_text="Видео, к которому относится хайлайт",
+    )
+    is_custom = models.BooleanField(
+        default=False,
+        help_text="Является ли хайлайт собственным промтом пользователя",
     )
     event_type = models.CharField(
         max_length=32,

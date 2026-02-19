@@ -27,6 +27,11 @@ class ConfigTask(models.Model):
         default=TaskStatus.PENDING,
         help_text="Статус выполнения задания",
     )
+    promt = models.TextField(
+        help_text="Собственный промт пользователя",
+        blank=True,
+        null=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
@@ -96,6 +101,7 @@ class ConfigTask(models.Model):
             response = adapter.send_request(
                 task_id=str(self.pk),
                 video_filename=video_filename,
+                prompt=self.promt,
             )
             self.video.status = "processing"
             self.video.save()
