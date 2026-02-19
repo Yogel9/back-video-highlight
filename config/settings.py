@@ -43,11 +43,13 @@ INSTALLED_APPS = [
     "django_celery_results",  # Для хранения результатов Celery задач в БД
     "main",  # Основное приложение
     "logistic",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # CORS — до CommonMiddleware
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -182,3 +184,8 @@ CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
 CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 CELERY_RESULT_EXTENDED = True  # Расширенная информация о результатах
+
+# CORS — доступ с фронтенда с других доменов
+CORS_ALLOW_ALL_ORIGINS = True  # Разрешить все origins (для разработки)
+# Для production укажите конкретные домены:
+# CORS_ALLOWED_ORIGINS = ["https://your-frontend.com", "http://localhost:3000"]

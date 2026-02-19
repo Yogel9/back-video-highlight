@@ -1,5 +1,6 @@
 import os
 
+from django.core.files import File
 from django.db import models
 
 from logistic.service.video_uploader import VideoUploader
@@ -47,9 +48,14 @@ class Video(models.Model):
     def save(self, *args, **kwargs):
         if self.source_url and not self.file:
             uploader = VideoUploader(self.source_url)
-            uploaded_file = uploader.upload()
-            if uploaded_file is not None:
-                self.file = uploaded_file
+            downloaded_path = uploader.upload()
+            if downloaded_path is not None:
+                try:
+                    filename = os.path.basename(downloaded_path)
+                    with open(downloaded_path, "rb") as f:
+                        self.file.save(filename, File(f), save=False)
+                finally:
+                    uploader.cleanup()
         if self.file and not self.title:
             self.title = os.path.splitext(os.path.basename(self.file.name))[0]
         super().save(*args, **kwargs)
