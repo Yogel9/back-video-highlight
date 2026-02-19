@@ -97,6 +97,8 @@ class ConfigTask(models.Model):
                 task_id=str(self.pk),
                 video_filename=video_filename,
             )
+            self.video.status = "processing"
+            self.video.save()
             self.result = response
         except Exception as exc:  # noqa: BLE001
             self.error_message = str(exc)
