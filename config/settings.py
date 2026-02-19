@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "storages",
-    "django_celery_results",  # Для хранения результатов Celery задач в БД
-    "main",  # Основное приложение
+    "django_celery_results", 
+    "main",  
     "logistic",
     "corsheaders",
 ]
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # CORS — до CommonMiddleware
+    "corsheaders.middleware.CorsMiddleware",  
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -154,6 +154,8 @@ AWS_SECRET_ACCESS_KEY = 'minioadmin'
 AWS_STORAGE_BUCKET_NAME = 'video'  # имя бакета
 AWS_S3_ENDPOINT_URL = 'http://minio:9000'
 AWS_S3_CUSTOM_DOMAIN = 'minio:9000'
+# Публичный URL для доступа к медиа снаружи
+MEDIA_PUBLIC_BASE_URL = 'http://45.80.129.41'
 AWS_S3_USE_SSL = False
 AWS_S3_USE_SIGV4 = False
 AWS_S3_FILE_OVERWRITE = False
@@ -185,7 +187,5 @@ CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_TASK_SEND_SENT_EVENT = True
 CELERY_RESULT_EXTENDED = True  # Расширенная информация о результатах
 
-# CORS — доступ с фронтенда с других доменов
-CORS_ALLOW_ALL_ORIGINS = True  # Разрешить все origins (для разработки)
-# Для production укажите конкретные домены:
+CORS_ALLOW_ALL_ORIGINS = True  
 # CORS_ALLOWED_ORIGINS = ["https://your-frontend.com", "http://localhost:3000"]

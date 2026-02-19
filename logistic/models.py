@@ -2,6 +2,7 @@ import logging
 
 from django.db import models
 
+from logistic.utils import get_public_media_url
 from main.models import Video
 
 logger = logging.getLogger(__name__)
@@ -85,7 +86,8 @@ class ConfigTask(models.Model):
             self.save(update_fields=["status", "error_message", "finished_at"])
             return
 
-        file_url = self.video.file.url if self.video.file else ""
+        raw_url = self.video.file.url if self.video.file else ""
+        file_url = get_public_media_url(raw_url) or raw_url
         adapter = MLAdapter(api_url=api_url)
 
         try:
