@@ -1,5 +1,6 @@
 import os
 
+from django.db.models import Count
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, serializers
@@ -10,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 
 from main.models import Video, Highlight
-from logistic.serializers import (
+from main.serializers import (
     VideoSerializer,
     HighlightSerializer,
     HighlightBulkCreateItemSerializer,
@@ -44,22 +45,6 @@ class HighlightViewSet(ListAPIView):
 
 
 class HighlightBulkCreateView(APIView):
-    """
-    POST-эндпоинт для массового создания хайлайтов.
-
-    Body: массив объектов:
-    [
-        {
-            "task_id": "123",
-            "event_type": "TYPE",
-            "time_start": 10,
-            "description": "DESC",
-            "confidence": 0.95,
-            "time_duration": 5
-        },
-        ...
-    ]
-    """
 
     permission_classes = [permissions.AllowAny]
 
@@ -74,13 +59,7 @@ class HighlightBulkCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         highlights = []
         for item in serializer.validated_data:
-            try:
-                task_id_int = int(item["task_id"])
-            except (TypeError, ValueError):
-                return Response(
-                    {"error": f"task_id должен быть числом: {item['task_id']}"},
-                    status=400,
-                )
+            task_id_int = int(item["task_id"])
             video = get_object_or_404(Video, tasks__pk=task_id_int)
             highlight = Highlight.objects.create(
                 video=video,
@@ -98,7 +77,7 @@ class HighlightBulkCreateView(APIView):
 
 
 class VideoViewSet(viewsets.ModelViewSet):
-    queryset = Video.objects.all()
+    queryset = Video.objects.annotate(highlights_count=Count("highlights"))
     serializer_class = VideoSerializer
     permission_classes = [permissions.AllowAny]
 
