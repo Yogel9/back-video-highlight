@@ -5,23 +5,22 @@ from .views import (
     VideoViewSet,
     VideoStatusView,
     HeadlineViewSet,
-    VideoDownloadView,
 )
 
 router = DefaultRouter()
-router.register(r"videos", VideoViewSet, basename="video")
+router.register(r"video", VideoViewSet, basename="video")
 
 urlpatterns = [
     path(
-        "videos/<int:pk>/status/",
+        "video/<int:pk>/status/",
         VideoStatusView.as_view(),
         name="video-status",
     ),
-    path(
-        "videos/download/",
-        VideoDownloadView.as_view(),
-        name="video-download",
-    ),
+    # path(
+    #     "videos/download/",
+    #     VideoDownloadView.as_view(),
+    #     name="video-download",
+    # ),
     path(
         "headlines/",
         HeadlineViewSet.as_view(),
