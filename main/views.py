@@ -16,7 +16,6 @@ from rest_framework import viewsets
 
 from logistic.models import ConfigTask
 from main.models import Video, Highlight, HighlightFile
-from main.tasks import cut_highlight_video
 from main.serializers import (
     VideoSerializer,
     HighlightSerializer,
@@ -145,8 +144,6 @@ class HighlightBulkCreateView(APIView):
                 description=item.get("description", "") or "",
                 confidence=item["confidence"],
             )
-            highlights.append(highlight)
-            cut_highlight_video.delay(highlight.pk)
         return Response(
             HighlightSerializer(highlights, many=True).data,
             status=201,
