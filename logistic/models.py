@@ -65,6 +65,9 @@ class ConfigTask(models.Model):
                     f"Не удалось поставить задачу ML в очередь (брокер недоступен). ",
                     f"Ошибка: {e}"
                 )
+    @property
+    def is_custom(self):
+        return self.promt and not self.promt != ''
 
     def start(self, extra_payload=None) -> None:
         from django.conf import settings
@@ -98,26 +101,24 @@ class ConfigTask(models.Model):
 
         adapter = MLAdapter(api_url=api_url)
         try:
-            if self.promt and not self.promt != '':
-                response = adapter.send_request(
-                    task_id=str(self.pk),
-                    video_filename=video_filename,
-                    prompt=self.promt,
-                )
+            args = {
+                'video_filename': video_filename,
+                'task_id': str(self.pk),
+            }
+            if self.is_custom:
+                args['prompt'] = self.promt
             else:
                 self.video.status = "processing"
-                self.video.save()
-                response = adapter.send_request(
-                    task_id=str(self.pk),
-                    video_filename=video_filename,
-                )
-
+            response = adapter.send_request(**args)
             self.result = response
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc: 
             self.error_message = str(exc)
             self.status = TaskStatus.FAILED
+            if not self.is_custom:
+                self.video.status = "not_processed"
         finally:
             self.finished_at = timezone.now()
+            self.video.save()
             self.save(
                 update_fields=[
                     "status",
