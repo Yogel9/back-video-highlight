@@ -99,7 +99,7 @@ class ConfigTask(models.Model):
         adapter = MLAdapter(api_url=api_url)
         try:
 
-            if not self.promt:
+            if not self.promt or not self.promt == "":
                 self.video.status = "processing"
                 self.video.save()
                 response = adapter.send_request(
