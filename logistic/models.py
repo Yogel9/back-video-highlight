@@ -98,7 +98,6 @@ class ConfigTask(models.Model):
 
         adapter = MLAdapter(api_url=api_url)
         try:
-
             if self.promt and not self.promt != '':
                 response = adapter.send_request(
                     task_id=str(self.pk),

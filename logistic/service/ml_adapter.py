@@ -8,8 +8,8 @@ class MLAdapter:
         self.api_url = api_url
         self.timeout = timeout
 
-    def __get_url(self, is_custom):
-        prefix = "/parse_video" if is_custom else "/parse_video_custom"
+    def get_url(self, is_custom):
+        prefix = "/parse_video_custom" if is_custom else "/parse_video"
         return self.api_url + prefix
 
     def send_request(
@@ -23,12 +23,12 @@ class MLAdapter:
             "task_id": task_id,
             "video_filename": video_filename,
         }
-        if prompt and prompt.strip():
+        if prompt:
             payload["prompt"] = prompt.strip()
             is_custom = True
 
         response = requests.post(
-            self.__get_url(is_custom),
+            self.get_url(is_custom),
             json=payload,
             timeout=self.timeout,
         )
