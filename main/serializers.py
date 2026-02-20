@@ -93,7 +93,10 @@ class HighlightBulkCreateItemSerializer(serializers.Serializer):
                 data["time_start"] = int(float(data["time_start"]))
         if isinstance(data.get("time_duration"), str):
             data = data.copy()
-            data["time_duration"] = int(data["time_duration"])
+            try:
+                data["time_duration"] = int(data["time_duration"])
+            except ValueError:
+                data["time_duration"] = int(float(data["time_duration"]))
         if isinstance(data.get("confidence"), str):
             data = data.copy()
             data["confidence"] = float(data["confidence"])
