@@ -51,7 +51,7 @@ class Video(models.Model):
 
     def save(self, *args, **kwargs):
         if self.file and not self.title:
-            self.title = os.path.splitext(os.path.basename(self.file.name))[0]
+            self.title = os.path.splitext(os.path.basename(self.file.name[:200]))[0]
         super().save(*args, **kwargs)
     
     def create_task(self, promt=None):

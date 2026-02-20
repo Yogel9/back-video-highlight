@@ -64,7 +64,6 @@ class HighlightFileSerializer(serializers.ModelSerializer):
 
 
 class HighlightFileUploadSerializer(serializers.Serializer):
-    """Сериализатор для загрузки файлов вырезок по путям."""
 
     task_id = serializers.IntegerField()
     paths = serializers.ListField(
@@ -74,8 +73,6 @@ class HighlightFileUploadSerializer(serializers.Serializer):
 
 
 class HighlightBulkCreateItemSerializer(serializers.Serializer):
-    """Сериализатор для элемента входящего массива при массовом создании хайлайтов."""
-
     task_id = serializers.CharField()
     event_type = serializers.CharField(max_length=32)
     time_start = serializers.IntegerField(min_value=0)

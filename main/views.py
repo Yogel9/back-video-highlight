@@ -144,6 +144,7 @@ class HighlightBulkCreateView(APIView):
                 description=item.get("description", "") or "",
                 confidence=item["confidence"],
             )
+            highlights.append(highlight)
         return Response(
             HighlightSerializer(highlights, many=True).data,
             status=201,
