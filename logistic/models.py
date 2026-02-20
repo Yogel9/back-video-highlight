@@ -67,7 +67,7 @@ class ConfigTask(models.Model):
                 )
     @property
     def is_custom(self):
-        return self.promt and not self.promt != ''
+        return self.promt and self.promt != ''
 
     def start(self, extra_payload=None) -> None:
         from django.conf import settings
