@@ -98,14 +98,20 @@ class ConfigTask(models.Model):
 
         adapter = MLAdapter(api_url=api_url)
         try:
-            response = adapter.send_request(
-                task_id=str(self.pk),
-                video_filename=video_filename,
-                prompt=self.promt,
-            )
+
             if not self.promt:
                 self.video.status = "processing"
                 self.video.save()
+                response = adapter.send_request(
+                    task_id=str(self.pk),
+                    video_filename=video_filename,
+                )
+            else:
+                response = adapter.send_request(
+                    task_id=str(self.pk),
+                    video_filename=video_filename,
+                    prompt=self.promt,
+                )
             self.result = response
         except Exception as exc:  # noqa: BLE001
             self.error_message = str(exc)
