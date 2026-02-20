@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.core.files.base import ContentFile
 
-from .models import Video, Highlight
+from .models import Video, Highlight, HighlightFile
 from logistic.service.video_uploader import (
     VideoUploader,
     ResourceNotFoundError,
@@ -40,6 +40,13 @@ class VideoAdmin(admin.ModelAdmin):
                 return
 
         super().save_model(request, obj, form, change)
+
+
+@admin.register(HighlightFile)
+class HighlightFileAdmin(admin.ModelAdmin):
+    list_display = ("id", "video", "file", "created_at")
+    list_filter = ("created_at",)
+    search_fields = ("video__title", "file")
 
 
 @admin.register(Highlight)

@@ -16,6 +16,8 @@ from .views import (
     VideoStatusView,
     HighlightViewSet,
     HighlightBulkCreateView,
+    HighlightFileUploadView,
+    HighlightFileZipView,
 )
 
 router = DefaultRouter()
@@ -48,6 +50,16 @@ urlpatterns = [
         "api/highlights/bulk/",
         HighlightBulkCreateView.as_view(),
         name="highlight-bulk-create",
+    ),
+    path(
+        "api/highlight-files/",
+        HighlightFileZipView.as_view(),
+        name="highlight-files-zip",
+    ),
+    path(
+        "api/highlight-files/upload/",
+        HighlightFileUploadView.as_view(),
+        name="highlight-file-upload",
     ),
     
     # Таски (logistic)

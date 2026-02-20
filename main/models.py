@@ -95,11 +95,6 @@ class Highlight(models.Model):
         blank=True,
         help_text="Краткое текстовое описание события",
     )
-    highlight = models.URLField(
-        max_length=500,
-        blank=True,
-        help_text="Ссылка на вырезку/плейлист/диапазон",
-    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -109,3 +104,27 @@ class Highlight(models.Model):
 
     def __str__(self) -> str:
         return f"{self.video} [{self.start_time}-{self.end_time}]"
+
+
+class HighlightFile(models.Model):
+    """Файл вырезки, привязанный к видео."""
+
+    video = models.ForeignKey(
+        Video,
+        on_delete=models.CASCADE,
+        related_name="highlight_files",
+        help_text="Видео, к которому относится вырезка",
+    )
+    file = models.FileField(
+        upload_to="highlights/",
+        help_text="Файл вырезки",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Файл вырезки"
+        verbose_name_plural = "Файлы вырезок"
+
+    def __str__(self) -> str:
+        return f"{self.video} — {self.file.name}"

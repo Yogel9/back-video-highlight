@@ -3,7 +3,7 @@
 from rest_framework import serializers
 
 from logistic.utils import get_public_media_url
-from main.models import Video, Highlight
+from main.models import Video, Highlight, HighlightFile
 
 
 class VideoSerializer(serializers.ModelSerializer):
@@ -44,11 +44,33 @@ class HighlightSerializer(serializers.ModelSerializer):
             "end_time",
             "confidence",
             "description",
-            "highlight",
             "created_at",
             "is_custom",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class HighlightFileSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.file and data.get("file"):
+            data["file"] = get_public_media_url(instance.file.url)
+        return data
+
+    class Meta:
+        model = HighlightFile
+        fields = ["id", "video", "file", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class HighlightFileUploadSerializer(serializers.Serializer):
+    """Сериализатор для загрузки файлов вырезок по путям."""
+
+    task_id = serializers.IntegerField()
+    paths = serializers.ListField(
+        child=serializers.CharField(),
+        allow_empty=False,
+    )
 
 
 class HighlightBulkCreateItemSerializer(serializers.Serializer):

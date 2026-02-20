@@ -111,7 +111,7 @@ class ConfigTask(models.Model):
                 self.video.status = "processing"
             response = adapter.send_request(**args)
             self.result = response
-        except Exception as exc: 
+        except Exception as exc:
             self.error_message = str(exc)
             self.status = TaskStatus.FAILED
             if not self.is_custom:
