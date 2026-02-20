@@ -4,6 +4,38 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+
+def _truncate_filename(filename: str, max_length: int = 255) -> str:
+    """Обрезает имя файла до max_length, сохраняя расширение."""
+    if len(filename) <= max_length:
+        return filename
+    base, ext = os.path.splitext(filename)
+    max_base = max_length - len(ext)
+    if max_base <= 0:
+        return filename[:max_length]
+    return base[:max_base] + ext
+
+
+def _videos_upload_to(instance, filename: str) -> str:
+    """upload_to для Video.file: обрезает имя, если путь превышает 255 символов."""
+    base, ext = os.path.splitext(filename)
+    prefix = "videos/"
+    max_base = 255 - len(prefix) - len(ext)
+    if len(base) > max_base:
+        base = base[:max_base]
+    return f"{prefix}{base}{ext}"
+
+
+def _highlights_upload_to(instance, filename: str) -> str:
+    """upload_to для HighlightFile.file: обрезает имя, если путь превышает 255 символов."""
+    base, ext = os.path.splitext(filename)
+    prefix = "highlights/"
+    max_base = 255 - len(prefix) - len(ext)
+    if len(base) > max_base:
+        base = base[:max_base]
+    return f"{prefix}{base}{ext}"
+
+
 class VideoStatus(models.TextChoices):
     NOT_PROCESSED = "not_processed", "Не обработан"
     DOWNLOADING = "downloading", "Идёт загрузка"
@@ -18,7 +50,8 @@ class Video(models.Model):
         help_text="Название видео",
     )
     file = models.FileField(
-        upload_to="videos/",
+        upload_to=_videos_upload_to,
+        max_length=255,
         help_text="Загружаемый файл",
         blank=True,
     )
@@ -51,7 +84,7 @@ class Video(models.Model):
 
     def save(self, *args, **kwargs):
         if self.file and not self.title:
-            self.title = os.path.splitext(os.path.basename(self.file.name[:200]))[0]
+            self.title = os.path.splitext(os.path.basename(self.file.name))[0]
         super().save(*args, **kwargs)
     
     def create_task(self, promt=None):
@@ -116,7 +149,8 @@ class HighlightFile(models.Model):
         help_text="Видео, к которому относится вырезка",
     )
     file = models.FileField(
-        upload_to="highlights/",
+        upload_to=_highlights_upload_to,
+        max_length=255,
         help_text="Файл вырезки",
     )
     created_at = models.DateTimeField(auto_now_add=True)
